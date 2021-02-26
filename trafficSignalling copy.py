@@ -1,5 +1,7 @@
-file = 'Input/c.txt'
-outputfile = 'Output/c.txt'
+import numpy as np
+
+file = 'Input/b.txt'
+outputfile = 'Output/b.txt'
 with open(file, 'r') as f:
     # Reading simulation, intersections, streets, cars and points
     line = f.readline()
@@ -49,26 +51,43 @@ with open(file, 'r') as f:
     print(paths)
     print(streetToIndex)
     print(map)
-    matrixTranspose = [list(i) for i in zip(*route)]
-    n = len(matrixTranspose)
-    for i in range(n):
-        row = matrixTranspose[i]
-        inDegreeStreets[i] = []
-        if row.count(1)>1:
-           if i in inDegrees:
-               inDegrees[i] += 1
-           else:
-               inDegrees[i] = 2
-           length = len(row)
-           for j in range(length):
-               r = row[j]
-               #print('here', r)
-               if r==1:
-                   inDegreeStreets[i].append(streetToIndex[j])
-                   #print('here',j)
-
+    #matrixTranspose = [list(i) for i in zip(*route)]
+    #n = len(matrixTranspose)
+    # for i in range(n):
+    #     row = matrixTranspose[i]
+    #     rowBackup = route[i]
+    #     inDegreeStreets[i] = []
+    #     if row.count(1)>1:
+    #         inDegrees[i] = row.count(1)
+    #         length = len(row)
+    #         for j in range(length):
+    #            r = row[j]
+    #            #print('here', r)
+    #            if r==1:
+    #                inDegreeStreets[i].append(streetToIndex[j])
+    #                #print('here',j)
+    arr1 = np.array(route)
+    arr1_transpose = arr1.transpose()
+    for street, row in enumerate(arr1_transpose):
+        for s in list(pathSet):
+            if map.get(s)[0] == street:
+                map[s].append(sum(row))
+                if sum(row)>1:
+                    inDegrees[street] = sum(row)
+    print(map)
     print(inDegrees)
+    #intrIndegree = dict()
+    for i in range(intersections):
+        for street in map:
+            print(street, 'street')
+            if map[street][1] == i:
+                if i not in inDegreeStreets:
+                    inDegreeStreets[i] = [street]
+                else:
+                    inDegreeStreets[i].append(street)
     print(streetToEnd)
+    print(inDegreeStreets)
+    print(inDegrees)
     lightsCount = len(inDegrees)
     text = ""
     with open(outputfile, 'w') as f:
@@ -81,6 +100,7 @@ with open(file, 'r') as f:
                     lightsCount += 1
         for key,value in inDegrees.items():
             text+=str(key)+"\n"+str(value)+"\n"
+            print('road:',inDegreeStreets[key])
             roads = inDegreeStreets[key]
             val = 1
             flag = 0
